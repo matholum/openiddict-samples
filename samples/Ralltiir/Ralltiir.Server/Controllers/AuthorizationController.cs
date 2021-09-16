@@ -117,12 +117,19 @@ namespace Ralltiir.Server.Controllers
                 case ConsentTypes.External when !authorizations.Any():
                     return Forbid(
                         authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                        properties: new AuthenticationProperties(new Dictionary<string, string>
-                        {
-                            [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.ConsentRequired,
-                            [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
-                                "The logged in user is not allowed to access this client application."
-                        }));
+                        properties: new AuthenticationProperties(
+                            new Dictionary<string, string>
+                            {
+                                [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.ConsentRequired,
+                                [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                                    "The logged in user is not allowed to access this client application.",
+                                [OpenIddictServerAspNetCoreConstants.Properties.Scope] = application.Permissions
+                            },
+                            new Dictionary<string, object>
+                            {
+                                ["application_name"] = application.DisplayName
+                            }
+                        ));
 
                 // If the consent is implicit or if an authorization was found,
                 // return an authorization response without displaying the consent form.
@@ -165,12 +172,19 @@ namespace Ralltiir.Server.Controllers
                 case ConsentTypes.Systematic:
                     return Forbid(
                         authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                        properties: new AuthenticationProperties(new Dictionary<string, string>
-                        {
-                            [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.ConsentRequired,
-                            [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
-                                "Interactive user consent is required."
-                        }));
+                        properties: new AuthenticationProperties(
+                            new Dictionary<string, string>
+                            {
+                                [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.ConsentRequired,
+                                [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                                    "Interactive user consent is required.",
+                                [OpenIddictServerAspNetCoreConstants.Properties.Scope] = application.Permissions
+                            },
+                            new Dictionary<string, object>
+                            {
+                                ["application_name"] = application.DisplayName
+                            }
+                        ));
 
                 // In every other case, return an error since we only support promptless responses
                 default: throw new NotImplementedException("The specified grant type is not implemented.");

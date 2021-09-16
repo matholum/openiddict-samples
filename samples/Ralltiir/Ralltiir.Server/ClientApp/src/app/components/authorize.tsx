@@ -16,21 +16,25 @@ function Authorize() {
   const scopes = userManager.settings.scope;
   const profile = usersState.get("profile");
 
+  const loginError = _.find(usersState.get("loginError"), e => e.error === "consent_required");
+
   const accept = () => {
     dispatch(createAuthorizeAction(true));
   };
   const deny = () => {
     dispatch(createLogoutAction());
   };
-  return _.every(usersState.get("loginError"), e => e.error !== "consent_required") ? (
+  return loginError === undefined ? (
     <Redirect to="/" />
   ) : (
     <div className="authorize">
       <h2>Authorization</h2>
       <br />
       <p className="lead text-left">
-        Do you want to grant <strong>{profile?.azp}</strong> access to your data?
-        (scopes requested: {scopes})
+        Do you want to grant <strong>{loginError.application_name}</strong> access to your data?
+        <ul>
+          {_.map(JSON.parse(loginError.scope), s => <li>{s}</li>)}
+        </ul>
       </p>
 
       <div className="text-center">
